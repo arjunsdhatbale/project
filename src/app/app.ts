@@ -9,4 +9,12 @@ import { RouterOutlet } from '@angular/router';
 })
 export class App {
   protected readonly title = signal('project');
+
+  name="Arjun Dhatbale"; 
+  hello(){
+    let x  = 10; 
+    let b  = 30; 
+    let c = x + b; 
+    console.log("addition of a and b = " + c);
+  }
 }
