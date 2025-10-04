@@ -1,84 +1,135 @@
-import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
-import { Form, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../../services/user-service';
+import { CommonModule } from '@angular/common';
+import { User } from '../../models/user.model';
+
+
 
 @Component({
   selector: 'app-user',
-  imports: [
-    ReactiveFormsModule,
-    CommonModule
-  ],
+  standalone: true,
+  imports: [ CommonModule, ReactiveFormsModule],
   templateUrl: './user.html',
-  styleUrl: './user.css'
+  styleUrls: ['./user.css']
 })
+export class UserComponent implements OnInit {
+  userForm!: FormGroup;
+  users: UserComponent[] = [];
+  activeTab: 'create' | 'view' = 'create';
+  isLoading = false;
+  selectedUser: User | null = null;
+  deletingUserId: number | null = null;
+  userName: any;
+  email: any;
+  password: any;
+  id!: number;
 
+  constructor(private fb: FormBuilder, private userService: UserService) {}
 
-export class UserComponent {
- 
-  userForm: FormGroup; 
-    activeTab: 'create' | 'update' | 'view' | 'delete' = 'create';
-    users: UserComponent[] = [];
-    userName!: string;
-    email!: string;
-    id!: number;
+  ngOnInit(): void {
+    this.initForm();
+    this.fetchUsers();
+  }
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private userService: UserService
-  ){
-
-    this.userForm = this.formBuilder.group({
+  initForm() {
+    this.userForm = this.fb.group({
       userName: ['', Validators.required],
-      email: ['',[Validators.required, Validators.email]],
-      password: ['',Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
-
-  onSubmit(): void {
-
-    if(this.userForm.valid){
-      const userData: UserComponent = this.userForm.value;
-
-      this.userService.saveUser(userData).subscribe({
-        next: () => {
-          alert('User registered successfully ! ');
-          this.userForm.reset();
-        },
-        error: (error) => {
-          console.error('Error registering user : ', error); 
-          alert('Registration failed. Please try again . '); 
-        }
-      });
-    } else{
-      alert('Please fill out all fields correctrly .');
+  switchTab(tab: 'create' | 'view') {
+    this.activeTab = tab;
+    if (tab === 'create') {
+      this.selectedUser = null;
+      this.userForm.reset();
     }
   }
 
-  getAllUsers(): void {
+  fetchUsers() {
     this.userService.getAllUsers().subscribe({
-      next: (data) => {
-        this.users = data;
-      },
-      error: (err) => {
-        console.error('Failed to fetch users', err);
-      }
+      next: (res) => (this.users = res),
+      error: (err) => console.error(err)
     });
   }
 
-  deleteUser(userId: number): void {
-    this.userService.deleteUser(userId).subscribe({
-      next: () => {
-        alert('User deleted');
-        this.getAllUsers(); // Refresh
-      },
-      error: (err) => {
-        console.error('Failed to delete user', err);
-      }
-    });
+  onSubmit() {
+    if (this.userForm.invalid) {
+      this.userForm.markAllAsTouched();
+      return;
+    }
+
+    this.isLoading = true;
+    const payload: UserComponent = this.userForm.value;
+
+    if (this.selectedUser?.id) {
+      // Update existing user
+      payload.id = this.selectedUser.id;
+      this.userService.updateUser(payload).subscribe({
+        next: () => {
+          alert('User updated successfully!');
+          this.fetchUsers();
+          this.userForm.reset();
+          this.selectedUser = null;
+          this.activeTab = 'view';
+        },
+        error: (err) => console.error(err),
+        complete: () => (this.isLoading = false)
+      });
+    } else {
+      // Create new user
+      this.userService.saveUser(payload).subscribe({
+        next: () => {
+          alert('User saved successfully!');
+          this.fetchUsers();
+          this.userForm.reset();
+        },
+        error: (err) => console.error(err),
+        complete: () => (this.isLoading = false)
+      });
+    }
   }
 
+ editUser(user: User) {
+    this.selectedUser = { ...user };
+    this.userForm.patchValue({
+      userName: user.userName,
+      email: user.email,
+      password: user.password
+    });
+    this.activeTab = 'create';
+  }
+
+  deleteUser(id: number | undefined): void {
+    if (!id) {
+      console.error('User ID is undefined');
+      return;
+    }
+
+    if (confirm('Are you sure you want to delete this user?')) {
+      this.deletingUserId = id; // Set loading state
+      
+      this.userService.deleteUser(id).subscribe({
+        next: () => {
+          this.users = this.users.filter(user => user.id !== id);
+          this.deletingUserId = null;
+        },
+        error: (err) => {
+          console.error('Error deleting user:', err);
+          this.deletingUserId = null;
+          
+          if (err.status === 404) {
+            alert('User not found.');
+          } else {
+            alert('Failed to delete user. Please try again.');
+          }
+          
+          this.fetchUsers();
+        }
+      });
+    }
+  }
 
 }

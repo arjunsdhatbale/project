@@ -5,7 +5,7 @@ import { environment } from '../../Environments/environment';
 import { UserComponent } from '../components/user/user';
 
 
- 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -14,18 +14,23 @@ export class UserService {
 
   private apiUrl: string = `${environment.apiBaseUrl}/user`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  saveUser(user: UserComponent): Observable<UserComponent>{
-    return this.http.post<UserComponent>(this.apiUrl,user);
+  saveUser(user: UserComponent): Observable<UserComponent> {
+    return this.http.post<UserComponent>(this.apiUrl, user);
   }
   getAllUsers(): Observable<UserComponent[]> {
-  return this.http.get<UserComponent[]>(this.apiUrl);
-}
+    return this.http.get<UserComponent[]>(this.apiUrl);
+  }
 
-deleteUser(userId: number): Observable<void> {
-  return this.http.delete<void>(`${this.apiUrl}/${userId}`);
-}
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  updateUser(user: UserComponent): Observable<UserComponent> {
+    return this.http.put<UserComponent>(`${this.apiUrl}/${user.id}`, user);
+  }
+
 
 
 }

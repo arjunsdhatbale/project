@@ -1,98 +1,66 @@
 <div class="user-tabs-container">
-  <div class="tabs">
-    <button [class.active]="activeTab === 'create'" (click)="activeTab = 'create'">Create</button>
-    <button [class.active]="activeTab === 'update'" (click)="activeTab = 'update'">Update</button>
-    <button [class.active]="activeTab === 'view'" (click)="activeTab = 'view'">View</button>
-    <button [class.active]="activeTab === 'delete'" (click)="activeTab = 'delete'">Delete</button>
+  <!-- Tabs -->
+  <div class="tabs mb-3">
+    <button [class.active]="activeTab === 'create'" (click)="switchTab('create')">Create User</button>
+    <button [class.active]="activeTab === 'view'" (click)="switchTab('view')">View Users</button>
   </div>
 
-  <div class="tab-content">
-    <!-- Create User -->
-    @if (activeTab === 'create') {
-      <div class="tab-section">
-        <h2>Create User</h2>
-        <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
-          <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" id="username" formControlName="userName" placeholder="Enter your username" />
-          </div>
-      
-          <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" formControlName="email" placeholder="Enter your email" />
-          </div>
-      
-          <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" formControlName="password" placeholder="Enter your password" />
-          </div>
-      
-          <button type="submit">Submit</button>
-        </form>
+  <!-- CREATE TAB -->
+  <div *ngIf="activeTab === 'create'" class="card p-4 shadow-sm">
+    <h4 class="mb-3">{{ selectedUser ? 'Edit User' : 'Add New User' }}</h4>
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+      <div class="form-group mb-3">
+        <label>User Name</label>
+        <input type="text" class="form-control" formControlName="userName" />
+        <small *ngIf="userForm.get('userName')?.touched && userForm.get('userName')?.invalid" class="text-danger">Username is required</small>
       </div>
-    }
-    @if(activeTab === 'update'){
-    <!-- Update User -->
-    <div class="tab-section">
-      <h2>Update User (coming soon...)</h2>
-      <!-- We'll fill this in the next step -->
-    </div>
-    }
 
-    @if (activeTab === 'view') {
-  <div class="tab-section">
-    <h2>All Users</h2>
-    <button (click)="getAllUsers()">Refresh</button>
+      <div class="form-group mb-3">
+        <label>Email</label>
+        <input type="email" class="form-control" formControlName="email" />
+        <small *ngIf="userForm.get('email')?.touched && userForm.get('email')?.invalid" class="text-danger">Valid email is required</small>
+      </div>
 
-    <table class="user-table">
-      <thead>
+      <div class="form-group mb-3">
+        <label>Password</label>
+        <input type="password" class="form-control" formControlName="password" />
+        <small *ngIf="userForm.get('password')?.touched && userForm.get('password')?.invalid" class="text-danger">Password must be at least 6 characters</small>
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+        {{ selectedUser ? (isLoading ? 'Updating...' : 'Update User') : (isLoading ? 'Saving...' : 'Save User') }}
+      </button>
+    </form>
+  </div>
+
+  <!-- VIEW TAB -->
+  <div *ngIf="activeTab === 'view'" class="card p-4 shadow-sm">
+    <h4 class="mb-3">All Users</h4>
+    <table class="table table-bordered table-striped">
+      <thead class="table-light">
         <tr>
-          <th>#</th>
+          <th>Sr.No</th>
           <th>Username</th>
           <th>Email</th>
+          <th>Password</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of users; index as i">
+        <tr *ngFor="let user of users; let i = index">
           <td>{{ i + 1 }}</td>
           <td>{{ user.userName }}</td>
           <td>{{ user.email }}</td>
+          <td>{{ user.password }}</td>
+          <td>
+            <button class="btn btn-warning btn-sm me-2" (click)="editUser(user)">Edit</button>
+            <button class="btn btn-danger btn-sm" (click)="deleteUser(user.id)" [disabled]="!user.id">Delete</button>
+          </td>
+        </tr>
+        <tr *ngIf="!users || users.length === 0">
+          <td colspan="5" class="text-center text-muted">No users found</td>
         </tr>
       </tbody>
     </table>
   </div>
-}
-
-    
-    @if (activeTab === 'delete') {
-    <!-- Delete User -->
-    <div class="tab-section">
-      <h2>Delete User</h2>
-      <button (click)="getAllUsers()">Refresh</button>
-      <table class="user-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Username</th>
-          <th>Email</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let user of users; index as i">
-          <td>{{ i + 1 }}</td>
-          <td>{{ user.userName }}</td>
-          <td>{{ user.email }}</td>
-        </tr>
-      </tbody>
-    </table>
-      <ul>
-        <li *ngFor="let user of users">
-          {{ user.userName }} - {{ user.email }}
-          <button (click)="deleteUser(user.id)">Delete</button>
-        </li>
-      </ul>
-    </div>
-  }
-  </div>
-  
-</div>
+ 
