@@ -1,0 +1,140 @@
+.dashboard-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-header .text-muted {
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.dashboard-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 2px solid transparent;
+}
+
+.dashboard-card:not(.coming-soon):hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  border-color: #007bff;
+}
+
+.dashboard-card.coming-soon {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.card-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.card-icon svg {
+  color: #fff;
+}
+
+.card-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.card-description {
+  color: #6c757d;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.card-stats {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #007bff;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-arrow {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 32px;
+  height: 32px;
+  background: #f8f9fa;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:not(.coming-soon):hover .card-arrow {
+  background: #007bff;
+}
+
+.dashboard-card:not(.coming-soon):hover .card-arrow svg {
+  color: #fff;
+}
+
+.card-arrow svg {
+  color: #6c757d;
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-header h2 {
+    font-size: 1.5rem;
+  }
+}
